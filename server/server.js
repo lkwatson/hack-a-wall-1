@@ -95,17 +95,42 @@ server.listen(3000, () => {
   console.log('Listening on localhost:3000')
 })
 
+avatarIndex = 0;
+avatars = ["https://cdn0.iconfinder.com/data/icons/cute-animal-avatar-1/247/bird-512.png",
+"https://cdn0.iconfinder.com/data/icons/cute-animal-avatar-1/241/pig-512.png",
+"https://cdn0.iconfinder.com/data/icons/cute-animal-avatar-1/246/dog-512.png",
+"https://cdn0.iconfinder.com/data/icons/cute-animal-avatar-1/248/fish-512.png",
+"https://cdn0.iconfinder.com/data/icons/cute-animal-avatar-1/247/cow-512.png",
+"https://cdn0.iconfinder.com/data/icons/cute-animal-avatar-1/244/sheep-512.png"]
 
-io.on('connection', function(client) {  
-    console.log('Client connected...');
+response = {}
+
+
+io.on('connection', function(client) {
+    console.log('Client connected, id=' + client.id);
 
     client.on('join', function(data) {
         console.log(data);
     });
 
     client.on('messages', function(data) {
-		client.emit('broad', data);
-		client.broadcast.emit('broad',data);
+		var jsonArr = JSON.parse(data);
+		for (i = 0; i < jsonArr.length; i++) {
+			var person = jsonArr[i];
+			if (person.person_id in response) {
+				response[person.person_id]["x"] = person["x"];
+				response[person.person_id]["y"] = person["y"];
+			} else {
+				response[person.person_id] = {};
+				response[person.person_id]["x"] = person["x"];
+				response[person.person_id]["y"] = person["y"];
+				response[person.person_id]["avatar"] = avatars[avatarIndex];
+				avatarIndex = (avatarIndex + 1) % avatars.length;
+			}
+		}
+		console.log(response);
+		client.emit('broad', response);
+		client.broadcast.emit('broad', response);
     });
 
 });
