@@ -41,6 +41,8 @@ passport.deserializeUser((id, done) => {
 
 // create the server
 const app = express();
+var server = require('http').createServer(app);  
+var io = require('socket.io').listen(server);
 
 // add & configure middleware
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -58,9 +60,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // create the homepage route at '/'
-app.get('/', (req, res) => {
-  res.send(`You got home page!\n`)
-})
+app.use(express.static(__dirname + '/node_modules'));  
+app.get('/', function(req, res,next) {  
+    res.sendFile(__dirname + '/index.html');
+});
 
 // create the login get and post routes
 app.get('/login', (req, res) => {
@@ -69,7 +72,7 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
-    if(info) {return res.send(info.message)}
+    if (info) {return res.send(info.message)}
     if (err) { return next(err); }
     if (!user) { return res.redirect('/login'); }
     req.login(user, (err) => {
@@ -88,6 +91,13 @@ app.get('/authrequired', (req, res) => {
 })
 
 // tell the server what port to listen on
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log('Listening on localhost:3000')
 })
+
+io.on('connection', function(client) {  
+    console.log('Client connected...');
+
+    client.on('join', function(data) {
+        console.log(data);
+    })});
