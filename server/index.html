@@ -10,6 +10,8 @@
             <input id="chat_input" type="text">
             <input type="submit" value="Send">
         </form>
+		<img id="Billy" style="position:absolute; top:50px">
+		<img id="Tommy" style="position:absolute; top:50px">
          <script src="/jquery/dist/jquery.js"></script>
          <script src="/socket.io/socket.io.js"></script>
     </body>
@@ -21,7 +23,10 @@
 	 socket.emit('join', 'Hello World from client');
  });
  socket.on('broad', function(data) {
-	 $('#future').append(data+ "<br/>");
+	 for (var person_id in data) {
+		 $('#' + person_id).attr("src", data[person_id]['avatar']);
+		 $('#' + person_id).animate({ top: data[person_id]['y'] + "%", left: data[person_id]['x'] + "%"},100);
+	 } 
  });
 
  $('form').submit(function(e){
