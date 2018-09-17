@@ -61,6 +61,7 @@ app.use(passport.session());
 
 // create the homepage route at '/'
 app.use(express.static(__dirname + '/node_modules'));  
+app.use('/images', express.static(__dirname + '/images'));
 app.get('/', function(req, res,next) {  
     res.sendFile(__dirname + '/index.html');
 });
