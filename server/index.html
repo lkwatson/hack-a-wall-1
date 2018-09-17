@@ -4,12 +4,19 @@
 
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <!-- <h1>Hello World!</h1>
         <div id="future"></div>
         <form id="form" id="chat_form">
             <input id="chat_input" type="text">
             <input type="submit" value="Send">
-        </form>
+        </form> -->
+		<img id="RedSox" style="position:absolute; top:50px" src="https://pbs.twimg.com/profile_images/1017137076863676418/Q0lomPjR_400x400.jpg">
+		<video id="RedSoxVideo" controls autoplay="true" autoplay="true" muted="muted" loop>
+		  <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+		  <source src="https://www.w3schools.com/html/mov_bbb.webm" type="video/webm">
+		  <p>Your browser doesn't support HTML5 video. Here is
+		     a <a href="myVideo.mp4">link to the video</a> instead.</p>
+		</video>
          <script src="/jquery/dist/jquery.js"></script>
          <script src="/socket.io/socket.io.js"></script>
     </body>
@@ -20,8 +27,60 @@
  socket.on('connect', function(data) {
 	 socket.emit('join', 'Hello World from client');
  });
+ 
+var old_data = {}
+ $("#RedSoxVideo").get(0).play();
+ 
  socket.on('broad', function(data) {
-	 $('#future').append(data+ "<br/>");
+	 
+	 for (var person_id in old_data) {
+		 if (!data.hasOwnProperty(person_id)) {
+		 	$('#' + person_id).remove();
+			$('#' + person_id + '-hand1').remove();
+			$('#' + person_id + '-hand2').remove();
+		 }
+	 }
+	 
+	 for (var person_id in data) {
+		 if (!old_data.hasOwnProperty(person_id)) {
+			 var img = $('<img id="' + person_id + '" style="position:absolute; top:50px">');
+			 var img_hand1 = $('<img id="' + person_id + '-hand1" style="position:absolute; top:50px; z-index:1">');
+			 var img_hand2 = $('<img id="' + person_id + '-hand2" style="position:absolute; top:50px; z-index:1">');
+			 img.appendTo('body');
+			 img_hand1.appendTo('body');
+			 img_hand2.appendTo('body');
+		 }
+		 $('#' + person_id).attr("src", data[person_id]['avatar']);
+		 $('#' + person_id).animate({ top: data[person_id]['y'] + "%", left: data[person_id]['x'] + "%"},500);
+		 if (typeof data[person_id]['hand1_x'] != "undefined" && typeof data[person_id]['hand1_y'] != "undefined") {
+			 $('#' + person_id + "-hand1").attr("src", "https://png.pngtree.com/element_pic/00/16/10/1357ff62b403caf.jpg");
+			 $('#' + person_id + "-hand1").animate({ top: data[person_id]['hand1_y'] + "%", left: data[person_id]['hand1_x'] + "%"},500);
+		 } else {
+			 $('#' + person_id + "-hand1").hide();
+		 }
+		 
+		 if (typeof data[person_id]['hand2_x'] != "undefined" && typeof data[person_id]['hand2_y'] != "undefined") {
+			 $('#' + person_id + "-hand2").attr("src", "https://icon2.kisspng.com/20180203/cjq/kisspng-triangle-area-point-red-up-arrow-transparent-background-5a759c3bdd9aa1.1705476215176571479077.jpg");
+			 $('#' + person_id + "-hand2").animate({ top: data[person_id]['hand2_y'] + "%", left: data[person_id]['hand2_x'] + "%"},500);
+		 } else {
+			 $('#' + person_id + "-hand2").hide();
+		 }
+		 
+		 
+		 
+		 if (person_id == "Billy" && data[person_id]['hand1_x'] > 15 && $("#RedSoxVideo").is(':visible')) {
+			 console.log("bye");
+			 $("#RedSoxVideo" ).fadeOut( "fast");
+			 $("#RedSox" ).fadeIn( "fast");
+			 // $("#Tommy").animate({width: "700px", height: "400px"}, 3000);
+		 } else if (person_id == "Billy" && data[person_id]['hand1_x'] < 15 && !$("#RedSoxVideo").is(':visible')){
+			 console.log("hi");
+			 $("#RedSox" ).fadeOut( "fast");
+			 $("#RedSoxVideo" ).fadeIn( "fast");
+			$("#Eric").animate({width: "500px", height: "500px"}, 3000);
+		 }
+	 }
+	 old_data = data;
  });
 
  $('form').submit(function(e){

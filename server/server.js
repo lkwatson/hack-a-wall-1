@@ -117,20 +117,31 @@ io.on('connection', function(client) {
 		var jsonArr = JSON.parse(data);
 		for (i = 0; i < jsonArr.length; i++) {
 			var person = jsonArr[i];
-			if (person.person_id in response) {
-				response[person.person_id]["x"] = person["x"];
-				response[person.person_id]["y"] = person["y"];
-			} else {
+			if (!response.hasOwnProperty(person.person_id)) {
 				response[person.person_id] = {};
-				response[person.person_id]["x"] = person["x"];
-				response[person.person_id]["y"] = person["y"];
 				response[person.person_id]["avatar"] = avatars[avatarIndex];
 				avatarIndex = (avatarIndex + 1) % avatars.length;
 			}
+			response[person.person_id]["x"] = person["x"];
+			response[person.person_id]["y"] = person["y"];
+			
+			if (typeof person["hand1_x"] != "undefined") {
+				response[person.person_id]["hand1_x"] = person["hand1_x"];
+			}
+			if (typeof person["hand1_y"] != "undefined") {
+				response[person.person_id]["hand1_y"] = person["hand1_y"];
+			}
+			if (typeof person["hand2_x"] != "undefined") {
+				response[person.person_id]["hand2_x"] = person["hand2_x"];
+			}
+			if (typeof person["hand2_y"] != "undefined") {
+				response[person.person_id]["hand2_y"] = person["hand2_y"];
+			}
+			
 		}
-		console.log(response);
 		client.emit('broad', response);
 		client.broadcast.emit('broad', response);
+		console.log(response);
     });
 
 });
